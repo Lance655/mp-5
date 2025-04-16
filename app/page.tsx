@@ -16,20 +16,17 @@ export default function HomePage() {
     setError("");
     setShortURL("");
 
-    try {
-      await checkShortLink(alias, url);
+  const result = await checkShortLink(alias, url);
 
-      // Construct the final short URL using the current origin
-      const newShortURL = `${window.location.origin}/${alias}`;
-      setShortURL(newShortURL);
+  if (!result.success) {
+      // We got an error message back from the server
+      setError(result.message);
+      return;
+  }
 
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(String(err));
-      }
-    }
+  // If success, build the short URL
+  const newShortURL = `${window.location.origin}/${alias}`;
+  setShortURL(newShortURL);
   }
 
   return (
