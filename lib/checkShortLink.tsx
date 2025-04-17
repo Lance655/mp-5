@@ -32,10 +32,27 @@ export async function checkShortLink(alias: string, url: string) {
         };
     }
 
-    // 3. Insert if all good
+    // 3. Check reachability:
+    try {
+        const res = await fetch(url);
+        if (!res.ok) {
+            return {
+                success: false,
+                message: `URL is unreachable (status: ${res.status}).`,
+            };
+        }
+    } catch {
+        // If fetch fails due to DNS issues or connection error
+        return {
+            success: false,
+            message: "URL is unreachable (could not connect).",
+        };
+    }
+
+    // 4. Insert if all good
     await collection.insertOne({ alias, url });
 
-    // 4. Return data to caller
+    // 5. Return data to caller
     return {
         success: true,
         message: "all good",
